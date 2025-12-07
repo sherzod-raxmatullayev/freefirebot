@@ -64,7 +64,7 @@ from loader import bot
 
 
 
-async def button(user_id: int, referal = None) -> InlineKeyboardMarkup | None:
+async def button(user_id: int, referal) -> InlineKeyboardMarkup | None:
     kb = InlineKeyboardBuilder()
 
     channels = await sync_to_async(lambda: list(Channels.objects.all()))()
@@ -89,7 +89,8 @@ async def button(user_id: int, referal = None) -> InlineKeyboardMarkup | None:
         finally:
             if referal != None:
                 kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={referal}')
-            kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={user_id}')
+            else:
+                kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={user_id}')
         
 
     if kb:  
@@ -168,9 +169,9 @@ class mess_data(BaseFilter):
 
 @router.message(mess_data())
 async def mandatory_message(message: Message):
-    if message.text == '/start':
+    referel = None
+    if message.text.startswith('/start'):
         full_args = message.text.split(' ')
-        referel = None
         if len(full_args) > 1:
             _, referel = full_args
     kb = await button(message.from_user.id, referel)
@@ -179,7 +180,7 @@ async def mandatory_message(message: Message):
 
 @router.callback_query(call_data())
 async def mandatory_callback(query: CallbackQuery):
-    kb = await button(query.from_user.id)
+    kb = await button(query.from_user.id, None)
     if kb:
         await query.answer("Iltimos, quyidagi kanallarga obuna bo'ling va /start bosing.", reply_markup=kb.as_markup())
 
