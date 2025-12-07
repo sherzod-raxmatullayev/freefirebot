@@ -88,8 +88,8 @@ async def button(user_id: int, referal = None) -> InlineKeyboardMarkup | None:
             kb.button(text=channel.name, url=channel.link)
         finally:
             if referal == None:
-                kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={user_id}')
-            kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={referal}')
+                kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={referal}')
+            kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={user_id}')
         
 
     if kb:  
