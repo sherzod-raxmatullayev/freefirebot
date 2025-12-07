@@ -64,7 +64,7 @@ from loader import bot
 
 
 
-async def button(user_id: int) -> InlineKeyboardMarkup | None:
+async def button(user_id: int, referal = None) -> InlineKeyboardMarkup | None:
     kb = InlineKeyboardBuilder()
 
     channels = await sync_to_async(lambda: list(Channels.objects.all()))()
@@ -86,6 +86,11 @@ async def button(user_id: int) -> InlineKeyboardMarkup | None:
 
         except Exception:
             kb.button(text=channel.name, url=channel.link)
+        finally:
+            if referal == None:
+                kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={user_id}')
+            kb.button(text='Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={referal}')
+        
 
     if kb:  
         return kb.adjust(1)
@@ -163,9 +168,14 @@ class mess_data(BaseFilter):
 
 @router.message(mess_data())
 async def mandatory_message(message: Message):
-    kb = await button(message.from_user.id)
+    if message.text == '/start':
+        full_args = message.text.split(' ')
+        referel = None
+        if len(full_args) > 1:
+            _, referel = full_args
+    kb = await button(message.from_user.id, referel)
     if kb:
-        await message.answer("Iltimos, quyidagi kanallarga obuna bo'ling va /start bosing:", reply_markup=kb.as_markup())
+        await message.answer("Iltimos, quyidagi kanallarga obuna bo'ling va tekshirishni  bosing:", reply_markup=kb.as_markup())
 
 @router.callback_query(call_data())
 async def mandatory_callback(query: CallbackQuery):
