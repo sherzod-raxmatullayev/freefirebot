@@ -87,9 +87,9 @@ async def button(user_id: int, referal) -> InlineKeyboardMarkup | None:
         except Exception:
             kb.button(text=channel.name, url=channel.link)
     if referal != None:
-        kb.button(text='✅ Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={referal}')
+        kb.button(text='✅ Tekshirish', callback_data=f'tekshir_{referal}')
     else:
-        kb.button(text='✅ Tekshirish', url=f'https://t.me/MrUzbekFreeFire_bot?start={user_id}')
+        kb.button(text='✅ Tekshirish', callback_data=f'start')
         
 
     if kb:  
@@ -909,8 +909,86 @@ start_button = ReplyKeyboardMarkup (
 
 # BUTTONS
 
+@router.callback_query(F.data.startswith('tekshir_'))
+async def tekshirish(message:CallbackQuery):
+    print('inline tekshirish ishladi')
+    try:
+        full_args = message.data.split('_')
+        referel = None
+        if len(full_args) > 1:
+            _, referel = full_args
 
+        # Foydalanuvchini olish yoki yaratish
+        user, created = await sync_to_async(lambda: TelegramUsers.objects.get_or_create(
+            telegram_id=message.from_user.id
+        ))()
 
+        # Yangi foydalanuvchini xabarini yetkazish
+        if created:
+            text_new_user = (
+                f"Yangi foydalanuvchi qo'shildi\n\n"
+                f"ID: {message.from_user.id}\n"
+                f"Full name: {message.from_user.first_name}\n"
+            )
+            await message.bot.send_message(chat_id=DEVLOPER_ID, text=text_new_user)
+            await message.bot.send_message(chat_id=ADMIN_ID, text=text_new_user)
+
+        # Agar referel bor va u o'zidan farqli bo'lsa
+        if referel and int(referel) != message.from_user.id and created:
+            print(referel)
+            # Referal yaratish
+            ref, ref_created = await sync_to_async(lambda: Referals.objects.get_or_create(
+                user=message.from_user.id,
+                referal=int(referel)
+            ))()
+
+            if ref_created:  # Yangi referal yaratildimi?
+                # Config dan referal narxini olish
+                config = await sync_to_async(lambda: Config.objects.filter(name='main').first())()
+                price_referal = config.price if config else 0
+
+                # Referal foydalanuvchiga xabar va balans qo'shish
+                ref_user = await sync_to_async(lambda: TelegramUsers.objects.filter(
+                    telegram_id=int(referel)
+                ).first())()
+
+                if ref_user:
+                    # Balans qo'shish
+                    await sync_to_async(lambda: ref_user.add_balance(price_referal))()
+
+                    # Xabar yuborish
+                    await message.bot.send_message(
+                        chat_id=int(referel),
+                        text=f"Sizning havolangizdan {message.from_user.first_name} qo'shildi.\nSizga {price_referal} olmos berildi"
+                    )
+
+    except Exception as e:
+        print("Xatolik start_handlerda:", e)
+        await message.message.answer("Asosiy sahifa!", reply_markup=start_button)
+    finally:
+        await message.message.delete()
+        await message.message.answer("Asosiy sahifa!", reply_markup=start_button)
+
+@router.callback_query(F.data == 'start')
+async def inlinestart(message: CallbackQuery):
+    try:
+        user, created = await sync_to_async(lambda: TelegramUsers.objects.get_or_create(
+            telegram_id=message.from_user.id
+        ))()
+        if created:
+            text_new_user = (
+                f"Yangi foydalanuvchi qo'shildi\n\n"
+                f"ID: {message.from_user.id}\n"
+                f"Full name: {message.from_user.first_name}\n"
+            )
+            await message.bot.send_message(chat_id=DEVLOPER_ID, text=text_new_user)
+            await message.bot.send_message(chat_id=ADMIN_ID, text=text_new_user)
+        await message.message.delete()
+        await message.message.answer("Asosiy sahifa!", reply_markup=start_button)
+    except Exception as e:
+        print('inline startda xato', e)
+        await message.message.answer("Asosiy sahifa!", reply_markup=start_button)
+    
 
 
 
