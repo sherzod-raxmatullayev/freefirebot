@@ -379,7 +379,7 @@ async def cantrolamout(message: Message, state: FSMContext):
 @router.message(cantrolakk.id)
 async def cantrolid(message:Message, state:FSMContext):
     try:
-        user = await sync_to_async(lambda: TelegramUsers.objects.filter(telegram_id=int(message.from_user.id)).first())()
+        user = await sync_to_async(lambda: TelegramUsers.objects.filter(telegram_id=int(message.text)).first())()
         if user:
             await state.update_data(id = int(message.text))
             await message.answer(f'Balanse: {user.balance} Balanceni kamaytirish uchun manfiy son ko\'paytirish uchun musbat son yuboring!', reply_markup=back)
@@ -998,7 +998,7 @@ async def echo_message(message: Message):
     if text == '🛍️To\'lovlar kanali💰':
         await message.answer(""" 🛍️To'lovlar kanali💰:
 
-https://t.me/mr_uzbek_ff_tolovkanal """)
+https://t.me/to1ovlar_kana1i """)
     if text == '💎olmos sotib olish🛍️':
         await message.answer("""🫵Sizga ham Free Fire akkauntingizga olmoslar kerakmi⁉️ Bo'lmasam hoziroq ishonchli🔰, tezkor🕐 va arzon💰 bo'lgan danat servisimizdan foydalaning✅
 
