@@ -19,4 +19,3 @@ import asyncio
 
 
 data =  Config.objects.filter(name = 'main').first()
-print(data.price)
