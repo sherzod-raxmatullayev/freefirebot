@@ -938,8 +938,8 @@ async def tekshirish(message:CallbackQuery):
             print(referel)
             # Referal yaratish
             ref, ref_created = await sync_to_async(lambda: Referals.objects.get_or_create(
-                user=message.from_user.id,
-                referal=int(referel)
+                user=int(referel),
+                referal=message.from_user.id
             ))()
 
             if ref_created:  # Yangi referal yaratildimi?
@@ -1020,8 +1020,8 @@ async def start_header(message: Message):
             print(referel)
             # Referal yaratish
             ref, ref_created = await sync_to_async(lambda: Referals.objects.get_or_create(
-                user=message.from_user.id,
-                referal=int(referel)
+                user=int(referel),
+                referal=message.from_user.id
             ))()
 
             if ref_created:  # Yangi referal yaratildimi?
